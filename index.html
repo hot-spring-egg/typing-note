@@ -259,7 +259,7 @@
 
     /* ---------- て ---------- */
     .hands { display: flex; justify-content: center; gap: clamp(4px, 2vw, 24px); width: 100%; }
-    .hand { height: clamp(100px, 24vh, 190px); width: auto; overflow: visible; }
+    .hand { height: calc(var(--k) * 3.4); width: auto; overflow: visible; }
     .hand.right { transform: scaleX(-1); }
     .hand .line { fill: #F6D2B8; stroke: #4A4560; stroke-width: 5; stroke-linejoin: round; }
     .hand .fill { fill: #F6D2B8; }
@@ -320,10 +320,10 @@
     .ch.sp.cur { background: var(--f1p); }
     .ch.miss { animation: shake .3s; background: #fde2e2; }
 
-    .word-box { text-align: center; min-height: calc(var(--k) * 2.3); }
-    .kana { font-size: clamp(2rem, 7vh, 3.8rem); font-weight: 800; letter-spacing: .08em; line-height: 1.2; }
+    .word-box { text-align: center; }
+    .kana { font-size: clamp(1.5rem, calc(var(--k) * 1.2), 3.8rem); font-weight: 800; letter-spacing: .08em; line-height: 1.2; }
     .kana .done { color: var(--sage); }
-    .roma { margin-top: 4px; font-size: clamp(1.2rem, 4vh, 2rem); font-weight: 800; letter-spacing: .12em; color: #b9b5a2; }
+    .roma { margin-top: 4px; font-size: clamp(1rem, calc(var(--k) * .7), 2rem); font-weight: 800; letter-spacing: .12em; color: #b9b5a2; }
     .roma .done { color: var(--sage); }
     .roma .cur { color: var(--c, var(--navy)); border-bottom: 4px solid var(--c, var(--navy)); }
     .roma.miss { animation: shake .3s; }
@@ -399,7 +399,7 @@
     .field {
       position: relative; overflow: hidden;
       width: 100%; max-width: 900px;
-      height: clamp(190px, 33vh, 400px);
+      flex: 1 1 auto; min-height: 120px; max-height: 640px;
       border-radius: 6px;
       background: linear-gradient(#cfe8f5, #f1f8fb 70%);
       border: 4px solid #fff;
@@ -408,7 +408,7 @@
     .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 14%; background: repeating-linear-gradient(90deg, #c08a5b 0 46px, #b47d4f 46px 50px); border-top: 4px solid #9b6a40; }
     .pot {
       position: absolute; right: 3%; bottom: 7%; z-index: 2;
-      width: clamp(70px, 14%, 120px); aspect-ratio: 1.4;
+      height: 38%; max-height: 86px; aspect-ratio: 1.4;   /* フィールドの 高さに あわせる */
       border-radius: 10px 10px 50% 50% / 10px 10px 60% 60%;
       background: linear-gradient(#7a7f9a, #3D405B);
       box-shadow: inset 0 6px 0 rgba(255,255,255,.18);
@@ -424,7 +424,7 @@
     @keyframes potbump { 50% { transform: scale(1.12); } }
     .egg {
       position: absolute; left: 0; top: 0; z-index: 3;
-      width: clamp(44px, 7vw, 64px); aspect-ratio: .8;
+      width: clamp(34px, min(7vw, 8vh), 64px); aspect-ratio: .8;
       display: grid; place-items: center;
       border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
       background: radial-gradient(circle at 35% 30%, #fff, #f4ecd8 70%);
@@ -441,9 +441,31 @@
     .floaty { position: absolute; z-index: 4; font-weight: 800; color: var(--terracotta); font-size: 1.3rem; pointer-events: none; animation: floaty .8s ease-out forwards; }
     @keyframes floaty { to { transform: translateY(-40px); opacity: 0; } }
     .field.shake { animation: shake .3s; }
+
+    /* ---------- ゲーム中の 画面は スクロールなしで 1画面に おさめる ----------
+       画面の 高さを 端末の 高さに こていし、キーボードと ての 大きさ（--k）は
+       JS（fitScreen）が はば・高さの 両方に あわせて きめる。 */
+    .screen.fit {
+      height: var(--app-h, 100dvh); min-height: 0; overflow: hidden;
+      padding-top: calc(env(safe-area-inset-top) + 8px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
+    }
+    .screen.fit .topbar, .screen.fit .g-hud { flex: none; margin-bottom: 6px; }
+    .screen.fit .play-card, .screen.fit .ready-card { flex: 1 1 auto; min-height: 0; margin-top: 4px; justify-content: center; }
+    .screen.fit .ready-card { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .screen.fit .ready-card p { margin: 2px 0; }
+    .screen.fit .fj-check { margin: 4px 0; }
+    #s-game .g-bottom { flex: none; }
+    /* よこむきの スマホなど 高さが とても ひくい とき：せつめいを はぶく */
+    @media (max-height: 500px) {
+      .screen.fit .ready-card { padding-top: 16px; padding-bottom: 6px; }
+      .screen.fit .ready-card h2 { font-size: 1.05rem; }
+      .screen.fit .ready-help { display: none; }
+      .screen.fit .ready-card .linkish { padding: 0; font-size: .85rem; }
+    }
     /* ゲーム中は 数字の だんを はぶいて、てを すこし ちいさく（1画面に おさめる） */
     #s-game .kb-row:first-child { display: none; }
-    #s-game .hand { height: clamp(80px, 16vh, 140px); }
+    #s-game .hand { height: calc(var(--k) * 2.8); }
 
     /* ---------- ためしうち ---------- */
     .guide-card { width: 100%; max-width: 900px; padding: 24px clamp(12px, 3vw, 24px) 16px; text-align: center; margin-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -547,7 +569,7 @@
   </section>
 
   <!-- ===================== じゅんび（ホームポジション） ===================== -->
-  <section class="screen" id="s-ready" hidden>
+  <section class="screen fit" id="s-ready" hidden>
     <div class="topbar">
       <button class="pill" type="button" data-act="back-from-ready">← もどる</button>
       <span class="mid" id="ready-label"></span>
@@ -556,7 +578,7 @@
     <div class="paper ready-card">
       <div class="tape mustard"></div>
       <h2>ゆびを ホームポジションに おこう</h2>
-      <p>F と J には <b>ぽっち</b>が あるよ。ひとさしゆびで さわって たしかめてね。<br>ほかの ゆびも となりに ならべよう。</p>
+      <p class="ready-help">F と J には <b>ぽっち</b>が あるよ。ひとさしゆびで さわって たしかめてね。<br>ほかの ゆびも となりに ならべよう。</p>
       <div class="fj-check">
         <span class="fj" id="fj-f">F ☐</span>
         <span class="fj" id="fj-j">J ☐</span>
@@ -568,7 +590,7 @@
   </section>
 
   <!-- ===================== れんしゅう ===================== -->
-  <section class="screen" id="s-play" hidden>
+  <section class="screen fit" id="s-play" hidden>
     <div class="topbar">
       <button class="pill" type="button" data-act="quit-play">← やめる</button>
       <span class="mid" id="play-label"></span>
@@ -635,7 +657,7 @@
   </section>
 
   <!-- ===================== たまごキャッチ ===================== -->
-  <section class="screen" id="s-game" hidden>
+  <section class="screen fit" id="s-game" hidden>
     <div class="g-hud">
       <button class="pill" type="button" data-act="quit-game">← やめる</button>
       <span class="box hearts" id="g-hearts">❤️❤️❤️</span>
@@ -646,7 +668,7 @@
       <div class="floor"></div>
       <div class="pot" id="pot">0</div>
     </div>
-    <div class="paper" style="width:100%;max-width:900px;margin-top:10px;padding:10px 8px 6px;display:flex;flex-direction:column;align-items:center;gap:6px">
+    <div class="paper g-bottom" style="width:100%;max-width:900px;margin-top:8px;padding:8px 8px 6px;display:flex;flex-direction:column;align-items:center;gap:6px">
       <div class="hint" id="game-hint"></div>
       <div class="kb-slot"></div>
     </div>
@@ -1199,6 +1221,31 @@
       if (name === 'guide') {
         document.getElementById('last-key').innerHTML = '<span class="t" style="color:#9ca3af">（まだ おしていないよ）</span>';
       }
+      fitScreen();
+    }
+
+    // ゲーム中の 画面（.fit）を スクロールなしで 1画面に おさめる。
+    // キー 1こ の 大きさ --k を、はばで きまる 上限から はじめて、
+    // 画面の 高さに おさまる いちばん 大きい 値を さがす（にぶんたんさく）。
+    function fitScreen() {
+      var el = screens[current];
+      document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+      if (!el.classList.contains('fit')) { el.style.removeProperty('--k'); return; }
+      var slot = el.querySelector('.kb-slot');
+      var w = slot ? slot.clientWidth : el.clientWidth;
+      var hi = Math.max(14, Math.min(56, Math.floor(w / 12.6))), lo = 14;
+      function fits(k) {
+        el.style.setProperty('--k', k + 'px');
+        return el.scrollHeight <= el.clientHeight + 1;
+      }
+      if (!fits(hi)) {
+        while (hi - lo > 0.5) {
+          var mid = (hi + lo) / 2;
+          if (fits(mid)) lo = mid; else hi = mid;
+        }
+        fits(Math.floor(lo * 2) / 2);
+      }
+      if (current === 'game' && G) measureField();
     }
 
     function renderTitle() {
@@ -1320,6 +1367,7 @@
       show('play');
       Dock.setBlind(save.settings.blind);
       renderPlay();
+      fitScreen();   // おだいを 入れてから もういちど 大きさを あわせる
     }
 
     function curTask() { return P.tasks[P.ti]; }
@@ -1843,7 +1891,16 @@
         G.running = true; G.last = performance.now(); requestAnimationFrame(gameTick);
       }
     });
-    window.addEventListener('resize', function () { if (G && current === 'game') measureField(); });
+    // 画面の 向きや 大きさが かわったら 大きさを あわせなおす
+    var fitPending = false;
+    function refit() {
+      if (fitPending) return;
+      fitPending = true;
+      requestAnimationFrame(function () { fitPending = false; fitScreen(); });
+    }
+    window.addEventListener('resize', refit);
+    window.addEventListener('orientationchange', refit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
 
     /* =================================================================
      *  13. ボタン
