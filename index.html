@@ -435,6 +435,32 @@
     }
     .egg.gold { background: radial-gradient(circle at 35% 30%, #fff6c9, #f2c14e 70%); border-color: #d9a12a; }
     .egg.gold::after { content: '✨'; position: absolute; top: -12px; right: -10px; font-size: .9em; }
+    .egg.heart { background: radial-gradient(circle at 35% 30%, #fff0f3, #f7b8c6 70%); border-color: #e48aa0; }
+    .egg.heart::after { content: '❤️'; position: absolute; top: -12px; right: -10px; font-size: .8em; }
+    .egg.time { background: radial-gradient(circle at 35% 30%, #f1f8ff, #b9d8f2 70%); border-color: #82b0d8; }
+    .egg.time::after { content: '⏱'; position: absolute; top: -12px; right: -10px; font-size: .8em; }
+    /* レベルが 上がると 空の いろが かわる（あおぞら → ゆうやけ → ほしぞら） */
+    .field { transition: background .8s; }
+    .field[data-lv="3"], .field[data-lv="4"] { background: linear-gradient(#f6c58f, #fbe7cf 70%); }
+    .field[data-lv="5"], .field[data-lv="6"] {
+      background:
+        radial-gradient(circle at 12% 18%, #fff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 38% 10%, #fff 0 1px, transparent 1.5px),
+        radial-gradient(circle at 63% 22%, #fff 0 1.5px, transparent 2px),
+        radial-gradient(circle at 85% 12%, #fff 0 1px, transparent 1.5px),
+        linear-gradient(#2f3557, #5b6190 75%);
+    }
+    .field.fever { box-shadow: 0 0 0 4px #F2B544, 0 0 22px 6px rgba(242,181,68,.75); }
+    .g-hud .lv { color: var(--terracotta); margin-right: 6px; }
+    .g-hud .box, .g-hud .pill { white-space: nowrap; }
+    @media (max-width: 520px) {
+      .g-hud { gap: 4px; }
+      .g-hud .box { padding: 5px 8px; font-size: .8rem; }
+      .g-hud .pill { padding: 6px 10px; font-size: .8rem; }
+      .g-hud .lv { margin-right: 3px; }
+      .g-hud .hearts { letter-spacing: 0; }
+    }
+    .g-hud .mult { display: inline-block; margin-left: 6px; padding: 0 7px; border-radius: 999px; background: #F2B544; color: #fff; font-size: .85em; animation: pulse 1s ease-in-out infinite; }
     .egg.low { box-shadow: 0 0 0 4px var(--c, var(--navy)), 0 4px 8px rgba(0,0,0,.15); }
     .egg.caught { transition: transform .45s ease-in, opacity .45s; opacity: .2; }
     .egg.broken { background: none; border: none; box-shadow: none; font-size: clamp(2rem, 5vw, 2.8rem); transition: opacity .6s .3s; opacity: 0; }
@@ -546,7 +572,7 @@
           <span class="emo">♨️</span>
           <span class="name" style="color:var(--terracotta)">たまごキャッチ</span>
           <span class="sub">おちてくる たまごの キーを うって<br>おんせんに いれよう！</span>
-          <span class="badge" style="color:var(--terracotta)" id="badge-best">さいこう 0こ</span>
+          <span class="badge" style="color:var(--terracotta)" id="badge-best">さいこう 0てん</span>
         </button>
         <button class="paper menu-card" type="button" data-act="guide">
           <span class="pin yellow"></span>
@@ -643,7 +669,12 @@
       <div class="tape terra"></div>
       <h2>♨️ たまごキャッチ</h2>
       <p>おちてくる たまごに かいてある キーを うつと、<br>たまごが おんせんに とびこむよ。<b>じかんは 60びょう！</b><br>
-        ゆかに おちると われちゃう（❤️ が へる）。<b>きんの たまご</b>は 3こぶん！</p>
+        ゆかに おちると われちゃう（❤️ が へる）。</p>
+      <p style="font-size:.92rem;text-align:left;display:inline-block;margin:4px 0">
+        ⬆️ 10びょう ごとに <b>レベルアップ</b>！ だんだん はやく、たくさん おちてくるよ<br>
+        🔥 10れんぞくで <b>フィーバー ×2</b>、25れんぞくで <b>×3</b><br>
+        ✨ きんの たまご … 3こぶん　❤️ ハートの たまご … ❤️ が ふえる<br>
+        ⏱ とけいの たまご … じかんが 5びょう ふえる</p>
       <div class="speeds" id="speeds">
         <button class="speed" type="button" data-speed="slow">🐢 ゆっくり<small id="best-slow"></small></button>
         <button class="speed" type="button" data-speed="normal">🐇 ふつう<small id="best-normal"></small></button>
@@ -661,7 +692,7 @@
     <div class="g-hud">
       <button class="pill" type="button" data-act="quit-game">← やめる</button>
       <span class="box hearts" id="g-hearts">❤️❤️❤️</span>
-      <span class="box" id="g-time">⏱ 60</span>
+      <span class="box" id="g-time"><span class="lv">Lv.1</span>⏱ 60</span>
       <span class="box" id="g-score">🥚 0</span>
     </div>
     <div class="field" id="field">
@@ -1251,7 +1282,7 @@
     function renderTitle() {
       document.getElementById('badge-chicks').textContent = 'ひよこ ' + chickCount() + ' / ' + STAGES.length;
       var best = Math.max(save.game.slow, save.game.normal, save.game.fast);
-      document.getElementById('badge-best').textContent = 'さいこう ' + best + 'こ';
+      document.getElementById('badge-best').textContent = 'さいこう ' + best + 'てん';
     }
 
     function renderMap() {
@@ -1481,12 +1512,24 @@
 
     var CHEERS = ['いいね！', 'そのちょうし！', 'すごい！', 'ゆびが おぼえてきたね！', 'かっこいい！'];
     function pickCheer() { return CHEERS[rand(CHEERS.length)]; }
-    function cheer(text) {
+    // かけごえ：かさならないように 1つずつ だす。
+    // important（レベルアップ・フィーバーなど）は じゅんばんまち、ふつうの ほめことばは だしている さいちゅうなら とばす。
+    var cheerQueue = [], cheerBusy = false;
+    function cheer(text, important) {
+      if (cheerBusy) {
+        if (important && cheerQueue.length < 3) cheerQueue.push(text);
+        return;
+      }
+      cheerBusy = true;
       var el = document.createElement('div');
       el.className = 'cheer';
       el.textContent = text;
       document.body.appendChild(el);
       setTimeout(function () { el.remove(); }, 1150);
+      setTimeout(function () {
+        cheerBusy = false;
+        if (cheerQueue.length) cheer(cheerQueue.shift(), true);
+      }, 950);
     }
 
     function finishPlay() {
@@ -1634,7 +1677,7 @@
     function renderGameSetup() {
       Array.prototype.forEach.call(document.querySelectorAll('.speed'), function (b) {
         b.classList.toggle('on', b.dataset.speed === gSpeed);
-        document.getElementById('best-' + b.dataset.speed).textContent = 'さいこう ' + save.game[b.dataset.speed] + 'こ';
+        document.getElementById('best-' + b.dataset.speed).textContent = 'さいこう ' + save.game[b.dataset.speed] + 'てん';
       });
       var box = document.getElementById('g-keyset');
       box.textContent = '';
@@ -1654,15 +1697,24 @@
       });
     }
 
+    // レベル（10びょう ごと）。おちる はやさ・でてくる かず・いちどに でる かずが ふえる
+    var LEVEL_SEC = 10, MAX_LEVEL = 6;
+    function levelParams(lv) {
+      return { fall: 1 + 0.16 * (lv - 1), spawn: 1 + 0.2 * (lv - 1), maxEggs: 2 + lv };
+    }
+    function feverMult(combo) { return combo >= 25 ? 3 : combo >= 10 ? 2 : 1; }
+
     function beginGame() {
       show('game');
       Dock.setBlind(save.settings.blind);
       var field = document.getElementById('field');
       Array.prototype.forEach.call(field.querySelectorAll('.egg, .floaty'), function (e) { e.remove(); });
+      field.dataset.lv = 1;
+      field.classList.remove('fever');
       G = {
         keys: gameKeys(), sp: SPEEDS[gSpeed], speedKey: gSpeed,
-        eggs: [], score: 0, caught: 0, hearts: 3, time: 60,
-        accel: 1, spawnIn: 0.3, last: performance.now(), running: true, combo: 0, missBy: {}
+        eggs: [], score: 0, caught: 0, hearts: 3, time: 60, elapsed: 0, level: 1, lastSpurt: false,
+        spawnIn: 0.3, last: performance.now(), running: true, combo: 0, maxCombo: 0, missBy: {}
       };
       measureField();
       updateHud();
@@ -1688,14 +1740,20 @@
       var pool = G.keys.split('').filter(function (k) { return onScreen.indexOf(k) < 0; });
       if (!pool.length) return;
       var k = pool[rand(pool.length)];
-      var gold = Math.random() < 0.08;
+      // とくべつな たまご：ハート（❤️が へっている とき）・とけい（Lv.3 から）・きん
+      // r の はんい：0〜0.05 ハート / 0.05〜0.10 とけい / 0.10〜 きん（ふだん 8%・ラストスパート 22%）
+      var r = Math.random(), kind = 'normal';
+      if (r < 0.05) { if (G.hearts < 3 && G.level >= 2) kind = 'heart'; }
+      else if (r < 0.10) { if (G.level >= 3) kind = 'time'; }
+      else if (r < 0.10 + (G.lastSpurt ? 0.22 : 0.08)) kind = 'gold';
+      var gold = kind === 'gold';
       var el = document.createElement('div');
-      el.className = 'egg' + (gold ? ' gold' : '');
+      el.className = 'egg' + (kind !== 'normal' ? ' ' + kind : '');
       el.textContent = keyLabel(k);
       // おなべ（みぎした）の うえには おとさない
       var maxX = Math.max(10, G.w * 0.8 - G.eggW);
       var x = 10 + Math.random() * (maxX - 10);
-      var egg = { key: k, gold: gold, el: el, x: x, y: -G.eggH, alive: true };
+      var egg = { key: k, kind: kind, gold: gold, el: el, x: x, y: -G.eggH, alive: true, speed: 0.9 + Math.random() * 0.2 };
       el.style.transform = 'translate(' + x + 'px,' + egg.y + 'px)';
       document.getElementById('field').appendChild(el);
       G.eggs.push(egg);
@@ -1712,15 +1770,24 @@
       var dt = Math.min(0.05, (now - G.last) / 1000);
       G.last = now;
       G.time -= dt;
+      G.elapsed += dt;
+      var lv = Math.min(MAX_LEVEL, 1 + Math.floor(G.elapsed / LEVEL_SEC));
+      if (lv !== G.level) levelUp(lv);
+      if (!G.lastSpurt && G.time <= 10) {
+        G.lastSpurt = true;
+        cheer('ラストスパート！ ✨きんの たまごが ふえるよ', true);
+        SFX.combo();
+      }
+      var lp = levelParams(G.level);
       G.spawnIn -= dt;
       if (G.spawnIn <= 0) {
-        spawnEgg();
-        G.spawnIn = G.sp.spawn / G.accel * (0.8 + Math.random() * 0.4);
+        if (G.eggs.length < lp.maxEggs) spawnEgg();
+        G.spawnIn = G.sp.spawn / lp.spawn * (0.8 + Math.random() * 0.4);
       }
-      var v = (G.floorY + G.eggH) / G.sp.fall * G.accel;
+      var v = (G.floorY + G.eggH) / G.sp.fall * lp.fall;
       G.eggs.forEach(function (e) {
         if (!e.alive) return;
-        e.y += v * dt;
+        e.y += v * e.speed * dt;
         if (e.y + G.eggH >= G.floorY + 6) breakEgg(e);
         else e.el.style.transform = 'translate(' + e.x + 'px,' + e.y + 'px)';
       });
@@ -1740,9 +1807,22 @@
       requestAnimationFrame(gameTick);
     }
 
+    function levelUp(lv) {
+      G.level = lv;
+      document.getElementById('field').dataset.lv = lv;
+      cheer('レベル ' + lv + '！ スピードアップ！', true);
+      [523, 784, 1047, 1319].forEach(function (f, i) { tone(f, 0.12, 'triangle', 0.12, i * 0.07); });
+    }
+
+    function setCombo(n) {
+      G.combo = n;
+      if (n > G.maxCombo) G.maxCombo = n;
+      document.getElementById('field').classList.toggle('fever', feverMult(n) > 1);
+    }
+
     function breakEgg(e) {
       e.alive = false;
-      G.hearts--; G.combo = 0;
+      G.hearts--; setCombo(0);
       G.missBy[e.key] = (G.missBy[e.key] || 0) + 1;
       e.el.className = 'egg broken';
       e.el.textContent = '🍳';
@@ -1757,7 +1837,7 @@
       var hit = null;
       G.eggs.forEach(function (e) { if (e.alive && e.key === k && (!hit || e.y > hit.y)) hit = e; });
       if (!hit) {
-        G.combo = 0;
+        setCombo(0);
         SFX.miss();
         Dock.flash(k, 'wrong', 300);
         var low = lowestEgg();
@@ -1765,15 +1845,21 @@
         return;
       }
       hit.alive = false;
-      var gain = hit.gold ? 3 : 1;
-      G.score += gain; G.caught++; G.combo++;
-      G.accel = Math.min(2.2, G.accel + 0.018);
+      var before = feverMult(G.combo);
+      setCombo(G.combo + 1);
+      var mult = feverMult(G.combo);
+      var gain = (hit.gold ? 3 : 1) * mult;
+      G.score += gain; G.caught++;
+      var label = '+' + gain;
+      if (hit.kind === 'heart' && G.hearts < 3) { G.hearts++; label = '❤️+1'; }
+      if (hit.kind === 'time') { G.time += 5; label = '⏱+5びょう'; }
       Dock.flash(k, 'hit', 120);
-      if (hit.gold) SFX.gold(); else SFX.pop();
-      if (G.combo > 0 && G.combo % 10 === 0) cheer(G.combo + ' れんぞく！ ' + pickCheer());
+      if (hit.kind !== 'normal') SFX.gold(); else SFX.pop();
+      if (mult > before) { cheer('🔥 フィーバー ×' + mult + '！', true); SFX.combo(); }
+      else if (G.combo % 10 === 0) cheer(G.combo + ' れんぞく！ ' + pickCheer());
       var fl = document.createElement('div');
       fl.className = 'floaty';
-      fl.textContent = '+' + gain;
+      fl.textContent = label;
       fl.style.left = (hit.x + G.eggW / 2 - 10) + 'px';
       fl.style.top = hit.y + 'px';
       document.getElementById('field').appendChild(fl);
@@ -1786,14 +1872,29 @@
         pot.classList.remove('bump'); void pot.offsetWidth; pot.classList.add('bump');
       }, 450);
       Dock.setTarget(null);   // つぎの tick で いちばん下の たまごに うつる
+      updateHud();
     }
 
     function updateHud() {
+      // かわった ときだけ かきかえる（まいフレーム DOM を つくりなおさない）
+      var sig = [G.hearts, G.level, Math.max(0, Math.ceil(G.time)), G.score, feverMult(G.combo)].join(',');
+      if (sig === G.hudSig) return;
+      G.hudSig = sig;
       var h = '';
       for (var i = 0; i < 3; i++) h += i < G.hearts ? '❤️' : '🤍';
       document.getElementById('g-hearts').textContent = h;
-      document.getElementById('g-time').textContent = '⏱ ' + Math.max(0, Math.ceil(G.time));
-      document.getElementById('g-score').textContent = '🥚 ' + G.score;
+      var tEl = document.getElementById('g-time');
+      tEl.innerHTML = '<span class="lv"></span>';
+      tEl.firstChild.textContent = 'Lv.' + G.level;
+      tEl.appendChild(document.createTextNode('⏱ ' + Math.max(0, Math.ceil(G.time))));
+      var sEl = document.getElementById('g-score');
+      sEl.textContent = '🥚 ' + G.score;
+      var m = feverMult(G.combo);
+      if (m > 1) {
+        var b = document.createElement('span');
+        b.className = 'mult'; b.textContent = '×' + m;
+        sEl.appendChild(b);
+      }
       document.getElementById('pot').textContent = G.score;
     }
 
@@ -1802,19 +1903,22 @@
       var best = save.game[G.speedKey];
       var newRecord = G.score > best;
       if (newRecord) { save.game[G.speedKey] = G.score; persist(); }
-      var points = Math.min(40, Math.floor(G.score / 2));
+      // おんたまドリルの ポイントは キャッチした たまごの かずで きめる（フィーバーの ばいは ふくめない）
+      var points = Math.min(40, Math.floor(G.caught / 2));
       addPortalScore(points);
       var g = G;
       setTimeout(function () {
         showResult({
           title: g.hearts <= 0 ? 'おしまい！' : 'タイムアップ！',
           stars: null,
-          hatch: g.score >= 40 ? '🏆' : g.score >= 20 ? '🍳' : '♨️',
-          msg: newRecord && g.score > 0 ? 'しんきろく！ おめでとう！' : g.score >= 20 ? 'たくさん キャッチできたね！' : 'よく がんばったね！',
+          hatch: g.score >= 80 ? '🏆' : g.score >= 30 ? '🍳' : '♨️',
+          msg: newRecord && g.score > 0 ? 'しんきろく！ おめでとう！' : g.level >= MAX_LEVEL ? 'さいごの レベルまで いけたね！' : g.caught >= 20 ? 'たくさん キャッチできたね！' : 'よく がんばったね！',
           stats: [
-            ['おんせんたまご', g.score + ' こ' + (newRecord && g.score > 0 ? '<span class="newrec">しんきろく！</span>' : '')],
-            ['キャッチした かず', g.caught + ' こ'],
-            ['さいこう（' + g.sp.label + '）', Math.max(best, g.score) + ' こ']
+            ['スコア', g.score + ' てん' + (newRecord && g.score > 0 ? '<span class="newrec">しんきろく！</span>' : '')],
+            ['キャッチした たまご', g.caught + ' こ'],
+            ['とどいた レベル', 'Lv.' + g.level + (g.level >= MAX_LEVEL ? '（さいこう！）' : '')],
+            ['さいだい れんぞく', g.maxCombo + ' こ'],
+            ['さいこう（' + g.sp.label + '）', Math.max(best, g.score) + ' てん']
           ],
           weak: g.missBy,
           points: points,
